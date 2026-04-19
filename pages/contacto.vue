@@ -39,24 +39,34 @@
       </div>
 
       <div class="glass-panel form-panel">
+        <div v-if="statusMsg" :class="['status-banner', statusType]">
+          {{ statusMsg }}
+        </div>
+
         <form @submit.prevent="enviarMensaje" class="contact-form">
           <div class="input-group">
             <label for="nombre">Nombre</label>
-            <input type="text" id="nombre" placeholder="¿Cómo te llamas?" required />
+            <input v-model="formData.nombre" type="text" id="nombre" placeholder="¿Cómo te llamas?" required />
           </div>
 
           <div class="input-group">
             <label for="email">Correo Electrónico</label>
-            <input type="email" id="email" placeholder="tu@email.com" required />
+            <input v-model="formData.correo" type="email" id="email" placeholder="tu@email.com" required />
           </div>
 
           <div class="input-group">
-            <label for="mensaje">Mensaje</label>
-            <textarea id="mensaje" rows="4" placeholder="Cuéntame sobre tu proyecto..." required></textarea>
+            <label for="telefono">Teléfono</label>
+            <input v-model="formData.telefono" type="tel" id="telefono" placeholder="55 1234 5678" required />
           </div>
 
-          <button type="submit" class="btn-submit">
-            Enviar Mensaje <i class="fas fa-paper-plane"></i>
+          <div class="input-group">
+            <label for="proyecto">Proyecto</label>
+            <textarea v-model="formData.proyecto" id="proyecto" rows="4" placeholder="Cuéntame sobre tu proyecto..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit" :disabled="loading">
+            <span v-if="!loading">Enviar Mensaje <i class="fas fa-paper-plane"></i></span>
+            <span v-else>Enviando... <i class="fas fa-spinner fa-spin"></i></span>
           </button>
         </form>
       </div>
@@ -66,9 +76,44 @@
 </template>
 
 <script setup>
-// Aquí más adelante conectaremos el formulario a un servicio real (como Formspree o EmailJS)
-const enviarMensaje = () => {
-  alert('¡Formulario de prueba! Más adelante lo conectaremos para que envíe correos reales.');
+import { ref } from 'vue';
+
+// Estado del formulario
+const formData = ref({
+  nombre: '',
+  correo: '',
+  telefono: '',
+  proyecto: ''
+});
+
+const loading = ref(false);
+const statusMsg = ref('');
+const statusType = ref('');
+
+const enviarMensaje = async () => {
+  loading.value = true;
+  statusMsg.value = '';
+  
+  try {
+    // Llama a la API interna de Nuxt
+    await $fetch('/api/contact', {
+      method: 'POST',
+      body: formData.value
+    });
+
+    statusMsg.value = '¡Datos enviados correctamente a Google Sheets!';
+    statusType.value = 'success';
+    
+    // Limpiar formulario
+    formData.value = { nombre: '', correo: '', telefono: '', proyecto: '' };
+  } catch (error) {
+    statusMsg.value = 'Error al enviar los datos. Intenta de nuevo.';
+    statusType.value = 'error';
+  } finally {
+    loading.value = false;
+    // Ocultar mensaje después de 5 segundos
+    setTimeout(() => statusMsg.value = '', 5000);
+  }
 }
 </script>
 
@@ -95,7 +140,7 @@ const enviarMensaje = () => {
 }
 
 .page-title span {
-  background: linear-gradient(45deg, var(--dot-1), var(--dot-2));
+  background: linear-gradient(45deg, var(--dot-1, #00ffcc), var(--dot-2, #0077ff));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -108,18 +153,17 @@ const enviarMensaje = () => {
 /* ESTRUCTURA DE COLUMNAS */
 .contact-content {
   display: grid;
-  grid-template-columns: 1fr 1.5fr; /* El formulario ocupa un poco más de espacio */
+  grid-template-columns: 1fr 1.5fr;
   gap: 30px;
 }
 
-/* Responsive: Una columna en celulares */
 @media (max-width: 768px) {
   .contact-content {
     grid-template-columns: 1fr;
   }
 }
 
-/* PANELES DE CRISTAL (Reutilizando el estilo) */
+/* PANELES DE CRISTAL */
 .glass-panel {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(12px);
@@ -136,7 +180,7 @@ const enviarMensaje = () => {
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* ESTILOS DE INFORMACIÓN */
+/* INFORMACIÓN */
 .info-panel h3 { margin-top: 0; font-size: 1.5rem; }
 .info-desc { opacity: 0.8; line-height: 1.6; margin-bottom: 25px; }
 
@@ -161,28 +205,24 @@ const enviarMensaje = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--dot-2);
+  color: var(--dot-2, #0077ff);
   font-size: 1.2rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-:global(.light) .icon-box { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); color: var(--dot-3); }
-
 .details h4 { margin: 0 0 5px; font-size: 0.9rem; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
 .details span { font-weight: 600; font-size: 1.05rem; }
 
-/* REDES SOCIALES (Mismo estilo de tu tarjeta) */
-.social-title { margin: 0 0 15px; font-size: 1.1rem; }
+/* REDES SOCIALES */
 .social-links { display: flex; gap: 15px; }
 .social-icon {
   width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1); color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1); color: var(--text-primary, white);
   display: flex; align-items: center; justify-content: center;
   text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
 }
-.social-icon:hover { background: var(--dot-2); color: #000; transform: translateY(-3px); }
-:global(.light) .social-icon { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); }
+.social-icon:hover { background: var(--dot-2, #0077ff); color: #000; transform: translateY(-3px); }
 
 /* ESTILOS DEL FORMULARIO */
 .contact-form {
@@ -204,36 +244,26 @@ const enviarMensaje = () => {
   margin-left: 5px;
 }
 
-/* Inputs y Textarea de Cristal */
 .input-group input,
 .input-group textarea {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   padding: 12px 15px;
-  color: var(--text-primary);
+  color: var(--text-primary, white);
   font-size: 1rem;
-  font-family: inherit;
   transition: all 0.3s ease;
-}
-
-:global(.light) .input-group input,
-:global(.light) .input-group textarea {
-  background: rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .input-group input:focus,
 .input-group textarea:focus {
   outline: none;
-  border-color: var(--dot-2);
+  border-color: var(--dot-2, #0077ff);
   background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.2);
+  box-shadow: 0 0 0 3px rgba(0, 119, 255, 0.2);
 }
 
-.input-group textarea { resize: vertical; min-height: 120px; }
-
-/* BOTÓN DE ENVIAR */
+/* BOTÓN Y ESTADOS */
 .btn-submit {
   margin-top: 10px;
   padding: 15px;
@@ -242,7 +272,7 @@ const enviarMensaje = () => {
   font-size: 1.1rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: linear-gradient(45deg, var(--dot-1), var(--dot-2));
+  background: linear-gradient(45deg, var(--dot-1, #00ffcc), var(--dot-2, #0077ff));
   color: white;
   border: none;
   display: flex;
@@ -251,9 +281,24 @@ const enviarMensaje = () => {
   gap: 10px;
 }
 
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  opacity: 0.9;
 }
+
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.status-banner {
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.success { background: rgba(0, 255, 127, 0.15); color: #00ff7f; border: 1px solid rgba(0, 255, 127, 0.3); }
+.error { background: rgba(255, 69, 58, 0.15); color: #ff453a; border: 1px solid rgba(255, 69, 58, 0.3); }
 </style>
