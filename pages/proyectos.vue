@@ -3,8 +3,22 @@
     <h1 class="page-title">Mis <span>Proyectos</span> 🚀</h1>
     <p class="page-subtitle">Una selección de mis trabajos en desarrollo, investigación y diseño web.</p>
 
+    <section class="featured-3d-section">
+      <div class="featured-header">
+        <h2>Visualizador 3D Interactivo</h2>
+        <p>Tarea 1 Tema 4: Implementación de Code Splitting y Lazy Loading en Nuxt 3.</p>
+      </div>
+      
+      
+      <LazyStlViewer />
+    </section>
+
+    
+    <div class="section-divider"></div>
+
     <div class="projects-grid">
       
+      <!-- PROYECTO 1 -->
       <article class="project-card">
         <div class="project-content">
           <div class="project-tags">
@@ -23,6 +37,7 @@
         </div>
       </article>
 
+      <!-- PROYECTO 2 -->
       <article class="project-card">
         <div class="project-content">
           <div class="project-tags">
@@ -40,6 +55,7 @@
         </div>
       </article>
 
+      <!-- PROYECTO 3 -->
       <article class="project-card">
         <div class="project-content">
           <div class="project-tags">
@@ -65,14 +81,14 @@
 /* CONTENEDOR DE LA PÁGINA */
 .page-container {
   min-height: 100vh;
-  padding: 130px 20px 50px; /* Espacio arriba para que no choque con el menú flotante */
+  padding: 130px 20px 50px;
   max-width: 1100px;
   margin: 0 auto;
   position: relative;
   z-index: 1;
 }
 
-/* TÍTULOS */
+/* TÍTULOS PRINCIPALES */
 .page-title {
   font-size: 3rem;
   text-align: center;
@@ -91,6 +107,38 @@
   opacity: 0.8;
   margin-bottom: 3rem;
 }
+
+/* --- NUEVOS ESTILOS PARA LA SECCIÓN 3D --- */
+.featured-3d-section {
+  margin-bottom: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.featured-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.featured-header h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.featured-header p {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.section-divider {
+  height: 1px;
+  width: 100%;
+  background: rgba(150, 150, 150, 0.2);
+  margin: 3rem 0;
+}
+/* ----------------------------------------- */
 
 /* CUADRÍCULA (GRID) */
 .projects-grid {
